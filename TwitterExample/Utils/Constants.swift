@@ -12,4 +12,4 @@ let STORAGE_REF = Storage.storage().reference()
 let STORAGE_PROFILE_IMAGES = STORAGE_REF.child("profile_images")
 
 let DB_REF = Database.database().reference()
-let USER_REF = DB_REF.child("users")
+let USERS_REF = DB_REF.child("users")

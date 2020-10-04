@@ -60,7 +60,7 @@ class RegistrationController: UIViewController  {
     
     private let signUpButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Sing up", for: .normal)
+        button.setTitle("Sign up", for: .normal)
         button.setTitleColor(.twitterBlue, for: .normal)
         button.backgroundColor = .white
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -103,37 +103,16 @@ class RegistrationController: UIViewController  {
             return
         }
         
-        guard let imageData = profileImage.jpegData(compressionQuality: 0.3) else { return }
-        let filename = NSUUID().uuidString
-        let storageRef = STORAGE_PROFILE_IMAGES.child(filename)
+        let credentials = AuthCredentials(email: email, fullname: fullname, username: username, password: password, profileImage: profileImage)
         
-        storageRef.putData(imageData, metadata: nil) { (meta, error) in
-            storageRef.downloadURL { (url, error) in
-                guard let profileImageUrl = url?.absoluteString else { return }
-                let values = [
-                    "email": email,
-                    "username": username,
-                    "fullname": fullname,
-                    "profileImage": profileImageUrl
-                ]
-                
-                Auth.auth().createUser(withEmail: email, password: password, completion: { (result, error) in
-                    if let error = error {
-                        print("DEBUG: Error is \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    guard let uid = result?.user.uid else { return }
-                    
-                    
-                    USER_REF.child(uid).updateChildValues(values) {
-                        (error, ref) in
-                        print("DEBUG: Successfully inserted user")
-                    }
-                    
-                    print("DEBUG: Successfully registered user")
-                })
-            }
+        AuthService.shared.registerUser(credentias: credentials) {
+            (error, ref) in
+            guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else { return }
+            guard let tab = window.rootViewController as?  MainTabController else { return }
+            
+            tab.authenticateUserAndConfigureUI()
+            
+            self.dismiss(animated: true, completion: nil)
         }
         
         
