@@ -11,6 +11,14 @@ import Firebase
 
 class MainTabController: UITabBarController {
     // MARK: - Properties
+    var user: User? {
+        didSet {
+            guard let nav = viewControllers?[0] as? UINavigationController else { return }
+            guard let feed = nav.viewControllers.first as? FeedController else { return }
+            feed.user = user
+        }
+    }
+    
     let actionButton: UIButton = {
         let button = UIButton()
         button.tintColor = .white
@@ -32,7 +40,10 @@ class MainTabController: UITabBarController {
 
     // MARK: - Selectors
     @objc func actionButtonTapped() {
-        
+        guard let user = user else { return }
+        let nav = UINavigationController(rootViewController: UploadTweetController(user: user))
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true, completion: nil)
     }
     
     // MARK: - Helpers
@@ -75,6 +86,7 @@ class MainTabController: UITabBarController {
         } else {
             configureViewControllers()
             configureUI()
+            fetchUser()
         }
     }
     
@@ -84,6 +96,12 @@ class MainTabController: UITabBarController {
             print("DEBUG: User logged out")
         } catch let error {
             print("DEBUG: Failed to sign out: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchUser() {
+        UserService.shared.fetchUser { (user) in
+            self.user = user
         }
     }
 }
