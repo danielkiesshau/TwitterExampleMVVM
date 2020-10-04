@@ -8,22 +8,36 @@
 import UIKit
 import SDWebImage
 
+// need to be "class" to hold weak var
+protocol TweetCellDelegate: class {
+    func handleProfileImageTapped (_ cell: TweetCell)
+}
+
 class TweetCell: UICollectionViewCell {
     
     // MARK: - Properties
+    
+    // weak is used to make the relationship between the cell and the delegate "weak""
+    // that means that the memory management system can destroy cells  when needed
+    weak var delegate: TweetCellDelegate?
+    
     var tweet: Tweet? {
         didSet {
             configure()
         }
     }
     
-    private let profileImageView: UIImageView = {
+    private lazy var profileImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.setDimensions(width: 48, height: 48)
         iv.layer.cornerRadius = 48 / 2
         iv.backgroundColor = .twitterBlue
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleProfileImageTapped))
+        iv.addGestureRecognizer(tap)
+        iv.isUserInteractionEnabled = true
         
         return iv
     }()
@@ -123,6 +137,10 @@ class TweetCell: UICollectionViewCell {
     
     @objc func handleShareTapped() {
         
+    }
+    
+    @objc func handleProfileImageTapped() {
+        delegate?.handleProfileImageTapped(self)
     }
     
     // MARK: - Helpers

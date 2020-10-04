@@ -34,7 +34,7 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .twitterBlue
-        //logUserOut()
+//        logUserOut()
         authenticateUserAndConfigureUI()
     }
 
@@ -52,6 +52,7 @@ class MainTabController: UITabBarController {
         let buttonSize = CGFloat(56)
         actionButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.safeAreaLayoutGuide.rightAnchor, paddingBottom: 64, paddingRight: 16, width: buttonSize, height: buttonSize)
         actionButton.layer.cornerRadius = CGFloat(buttonSize / 2)
+        
     }
     
     func configureViewControllers() {
