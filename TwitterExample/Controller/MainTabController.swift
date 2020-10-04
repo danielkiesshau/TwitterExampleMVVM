@@ -55,8 +55,9 @@ class MainTabController: UITabBarController {
     }
     
     func configureViewControllers() {
+        let feedController = FeedController(collectionViewLayout: UICollectionViewFlowLayout())
         
-        let feed = templateNavigationController(image: UIImage(named: "home_unselected"), rootViewController: FeedController())
+        let feed = templateNavigationController(image: UIImage(named: "home_unselected"), rootViewController: feedController)
         let explore = templateNavigationController(image: UIImage(named: "search_unselected"), rootViewController: ExploreController())
         let notifications = templateNavigationController(image: UIImage(named: "like_unselected"), rootViewController: NotificationsController())
         let conversations = templateNavigationController(image: UIImage(named: "ic_mail_outline_white_2x-1"), rootViewController: ConversationsController())
@@ -100,7 +101,8 @@ class MainTabController: UITabBarController {
     }
     
     func fetchUser() {
-        UserService.shared.fetchUser { (user) in
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        UserService.shared.fetchUser(uid: uid) { (user) in
             self.user = user
         }
     }

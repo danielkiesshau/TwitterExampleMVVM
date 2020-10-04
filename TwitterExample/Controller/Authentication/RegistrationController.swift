@@ -97,7 +97,7 @@ class RegistrationController: UIViewController  {
         guard let email = emailTextField.text else { return }
         guard let password = passwordTextField.text else { return }
         guard let fullname = fullnameTextField.text else { return }
-        guard let username = usernameTextField.text else { return }
+        guard let username = usernameTextField.text?.lowercased() else { return }
         guard let profileImage = profileImage else {
             print("DEBUG: Select a profile image...")
             return
