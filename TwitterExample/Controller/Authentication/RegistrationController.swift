@@ -6,10 +6,14 @@
 //
 
 import UIKit
+import Firebase
 
 class RegistrationController: UIViewController  {
     
     // MARK: - Properties
+    private let imagePicker = UIImagePickerController()
+    private var profileImage: UIImage?
+    
     private let plusPhotoButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "plus_photo"), for: .normal)
@@ -73,7 +77,7 @@ class RegistrationController: UIViewController  {
         
         return button
     }()
-
+    
     // MARK: - Lifecycles
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,16 +90,60 @@ class RegistrationController: UIViewController  {
     }
     
     @objc func handleAddProfilePhoto() {
-        print("handle add profile photo")
+        present(imagePicker, animated: true, completion: nil)
     }
     
     @objc func handleRegistration() {
-        print("handleRegistration")
+        guard let email = emailTextField.text else { return }
+        guard let password = passwordTextField.text else { return }
+        guard let fullname = fullnameTextField.text else { return }
+        guard let username = usernameTextField.text else { return }
+        guard let profileImage = profileImage else {
+            print("DEBUG: Select a profile image...")
+            return
+        }
+        
+        guard let imageData = profileImage.jpegData(compressionQuality: 0.3) else { return }
+        let filename = NSUUID().uuidString
+        let storageRef = STORAGE_PROFILE_IMAGES.child(filename)
+        
+        storageRef.putData(imageData, metadata: nil) { (meta, error) in
+            storageRef.downloadURL { (url, error) in
+                guard let profileImageUrl = url?.absoluteString else { return }
+                let values = [
+                    "email": email,
+                    "username": username,
+                    "fullname": fullname,
+                    "profileImage": profileImageUrl
+                ]
+                
+                Auth.auth().createUser(withEmail: email, password: password, completion: { (result, error) in
+                    if let error = error {
+                        print("DEBUG: Error is \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let uid = result?.user.uid else { return }
+                    
+                    
+                    USER_REF.child(uid).updateChildValues(values) {
+                        (error, ref) in
+                        print("DEBUG: Successfully inserted user")
+                    }
+                    
+                    print("DEBUG: Successfully registered user")
+                })
+            }
+        }
+        
+        
     }
     
     // MARK: - Helpers
     func configureUI() {
         view.backgroundColor = .twitterBlue
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
         
         view.addSubview(alreadyHaveAccountButton)
         alreadyHaveAccountButton.anchor(left: view.leftAnchor, bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.rightAnchor, paddingLeft: 40, paddingRight: 40)
@@ -109,5 +157,26 @@ class RegistrationController: UIViewController  {
         stackView.spacing = 20
         stackView.distribution = .fillEqually
         stackView.anchor(top: plusPhotoButton.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingTop: 32,paddingLeft: 32, paddingRight: 32 )
+    }
+}
+
+
+// MARK: - UIImagePickerControllerDelegate
+extension RegistrationController:  UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let profileImage = info[.editedImage] as? UIImage else { return }
+        self.profileImage = profileImage
+        
+        plusPhotoButton.layer.cornerRadius = 128 / 2
+        plusPhotoButton.layer.masksToBounds = true
+        plusPhotoButton.imageView?.contentMode = .scaleAspectFill
+        plusPhotoButton.imageView?.clipsToBounds = true
+        
+        plusPhotoButton.setImage(profileImage.withRenderingMode(.alwaysOriginal), for: .normal)
+        
+        plusPhotoButton.layer.borderColor = UIColor.white.cgColor
+        plusPhotoButton.layer.borderWidth = 3
+        
+        dismiss(animated: true, completion: nil)
     }
 }
