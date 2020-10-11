@@ -11,6 +11,7 @@ import SDWebImage
 // need to be "class" to hold weak var
 protocol TweetCellDelegate: class {
     func handleProfileImageTapped (_ cell: TweetCell)
+    func handleReplyTapped(_ cell: TweetCell)
 }
 
 class TweetCell: UICollectionViewCell {
@@ -124,7 +125,7 @@ class TweetCell: UICollectionViewCell {
     
     // MARK: - Selectors
     @objc func handleCommentTapped() {
-        
+        delegate?.handleReplyTapped(self)
     }
     
     @objc func handleRetweetTapped() {
