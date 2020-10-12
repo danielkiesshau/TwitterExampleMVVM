@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Firebase
 private let reuseIdentifier = "TweetCell"
 private let headerIdentifier = "ProfileHeader"
 
@@ -40,10 +40,10 @@ class ProfileController: UICollectionViewController {
     // MARK: - Lifecycle
     init(user: User) {
         self.user = user
-
+        
         super.init(collectionViewLayout: UICollectionViewFlowLayout())
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -70,12 +70,12 @@ class ProfileController: UICollectionViewController {
         collectionView.backgroundColor = .white
         collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.register(TweetCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-       
+        
         collectionView.register(ProfileHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
         
         guard let tabHeight = tabBarController?.tabBar.frame.height else { return }
         collectionView.contentInset.bottom = tabHeight
-       
+        
     }
     
     // MARK: - API
@@ -131,9 +131,15 @@ extension ProfileController {
 // MARK: - UICollectionViewDelegateFlowLayout
 extension ProfileController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 350)
+        var height: CGFloat = 300
+        
+        if user.bio != "" {
+            height += 50
+        }
+        
+        return CGSize(width: view.frame.width, height: height)
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let tweet = currentDataSource[indexPath.row]
         let viewModel = TweetViewModel(tweet: tweet)
@@ -153,7 +159,7 @@ extension ProfileController: ProfileHeaderDelegate {
         self.selectedFilter = filter
     }
     
-
+    
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! ProfileHeader
         header.delegate = self
@@ -166,11 +172,11 @@ extension ProfileController: ProfileHeaderDelegate {
         let controller = TweetController(tweet: tweet)
         navigationController?.pushViewController(controller, animated: true)
     }
-
+    
     func handleDismissal() {
         navigationController?.navigationBar.isHidden = false
         navigationController?.popViewController(animated: true)
-       
+        
     }
     
     func handleEditProfileFollow(_ header: ProfileHeader) {
@@ -201,11 +207,25 @@ extension ProfileController: ProfileHeaderDelegate {
 
 // MARK: - EditProfileControllerDelegate
 extension ProfileController: EditProfileControllerDelegate {
+    func handleLogout() {
+        do {
+            try Auth.auth().signOut()
+            let nav = UINavigationController(rootViewController: LoginController())
+            nav.modalPresentationStyle = .fullScreen
+            self.present(nav, animated: true, completion: nil)
+            print("DEBUG: User logged out")
+        } catch let error {
+            print("DEBUG: Failed to sign out: \(error.localizedDescription)")
+        }
+    }
+    
     func controller(_ controller: EditProfileController, wantsToUpdate user: User) {
         controller.dismiss(animated: true, completion: nil)
         self.user = user
         self.collectionView.reloadData()
     }
+    
+    
     
     
 }

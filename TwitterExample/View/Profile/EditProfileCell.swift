@@ -96,6 +96,7 @@ class EditProfileCell: UITableViewCell {
         
         infoTextField.isHidden = viewModel.shouldHideTextField
         bioTextView.isHidden = viewModel.shouldHideTextView
+        bioTextView.placeholderLabel.isHidden = user?.bio.count ?? 0 > 0
         titleLabel.text = viewModel.titleText
         
         infoTextField.text = viewModel.optionValue

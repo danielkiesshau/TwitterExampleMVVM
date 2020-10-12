@@ -6,12 +6,13 @@
 //
 
 import UIKit
-
+import Firebase
 
 private let reuseIdentifier = "EditProfileOption"
 
 protocol EditProfileControllerDelegate: class {
     func controller(_ controller: EditProfileController, wantsToUpdate user: User)
+    func handleLogout()
 }
 
 class EditProfileController: UITableViewController {
@@ -19,6 +20,7 @@ class EditProfileController: UITableViewController {
     // MARK: - Properties
     private var user: User
     private let imagePicker = UIImagePickerController()
+    private let footerView = EditProfileFooter()
     private lazy var headerView = EditProfileHeader(user: user)
     private var selectedImage: UIImage? {
         didSet {
@@ -119,7 +121,9 @@ class EditProfileController: UITableViewController {
         tableView.tableHeaderView = headerView
         headerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 180)
         headerView.delegate = self
-        tableView.tableFooterView = UIView()
+        footerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 100)
+        footerView.delegate = self
+        tableView.tableFooterView = footerView
         
         tableView.register(EditProfileCell.self, forCellReuseIdentifier: reuseIdentifier)
         
@@ -193,8 +197,24 @@ extension EditProfileController: EditProfileCellDelegate {
         }
       
     }
+}
+
+// MARK: EditProfileFooterDelegate
+extension EditProfileController: EditProfileFooterDelegate {
+    func handleLogout() {
+        let alert = UIAlertController(title: nil, message: "Are you user you want to log out?", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Log Out", style: .destructive, handler: {_ in
+            self.dismiss(animated: true, completion: {
+                self.delegate?.handleLogout()
+            })
+            
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        present(alert, animated: true, completion: nil)
+    }
     
-    
-    
-    
+ 
 }
