@@ -22,7 +22,7 @@ struct AuthService {
     private init() {}
     
     func logUserIn(withEmail email: String, password: String, completion: AuthDataResultCallback?) {
-        
+        Auth.auth().signIn(withEmail: email, password: password, completion: completion)
     }
     
     func registerUser(credentias: AuthCredentials, completion: @escaping(Error?, DatabaseReference) -> Void) {

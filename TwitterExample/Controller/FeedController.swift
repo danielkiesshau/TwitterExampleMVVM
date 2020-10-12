@@ -97,6 +97,7 @@ extension FeedController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! TweetCell
         cell.delegate = self
+        cell.contentView.isUserInteractionEnabled = true
         cell.tweet = tweets[indexPath.row]
         return cell
     }
@@ -126,8 +127,10 @@ extension FeedController: TweetCellDelegate {
         TweetService.shared.likeTweet(tweet: tweet) { (err, ref) in
             cell.tweet?.didLike.toggle()
             let likes = tweet.didLike ? tweet.likes - 1 : tweet.likes + 1
-            
             cell.tweet?.likes = likes
+            
+            guard !tweet.didLike else { return }
+            NotificationService.shared.uploadNotification(type: .like, tweet: tweet)
         }
     }
     

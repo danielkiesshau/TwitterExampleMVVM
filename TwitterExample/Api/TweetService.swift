@@ -53,20 +53,31 @@ struct TweetService {
         }
     }
     
+    func fetchTweet(withTweetID tweetID: String, completion: @escaping(Tweet) -> Void) {
+        TWEET_REF.child(tweetID).observeSingleEvent(of: .value) { (snapshot) in
+            guard let dictionary = snapshot.value as? [String: Any] else { return  }
+            guard let uid = dictionary["uid"] as? String else { return }
+            
+            UserService.shared.fetchUser(uid: uid) { (user) in
+                let tweetID = snapshot.key
+                
+                let tweet = Tweet(user: user, tweetID: tweetID, dictionary: dictionary)
+                completion(tweet)
+            }
+        }
+    }
+    
     func fetchTweets(forUser user: User, completion: @escaping([Tweet]) -> Void) {
         var tweets = [Tweet]()
         
         USER_TWEETS_REF.child(user.uid).observe(.childAdded) { (snapshot) in
             let tweetID = snapshot.key
             
-            TWEET_REF.child(tweetID).observeSingleEvent(of: .value) { (snapshot) in
-                guard let dictionary = snapshot.value as? [String: Any] else { return  }
-                
-                let tweet = Tweet(user: user, tweetID: tweetID, dictionary: dictionary)
+            self.fetchTweet(withTweetID: tweetID, completion: {tweet in
                 tweets.append(tweet)
                 
                 completion(tweets)
-            }
+            })
         }
     }
     
