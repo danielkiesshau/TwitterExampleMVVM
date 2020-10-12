@@ -29,13 +29,13 @@ class Utilities {
         return view
     }
     
-    static func textField(withPlaceHolder placeholder: String) -> UITextField {
+    static func textField(withPlaceHolder placeholder: String, color: UIColor = .white) -> UITextField {
         let tf = UITextField()
         tf.placeholder = placeholder
-        tf.textColor = .white
+        tf.textColor = color
         tf.font = UIFont.systemFont(ofSize: 16)
         tf.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [
-            NSAttributedString.Key.foregroundColor: UIColor.white
+            NSAttributedString.Key.foregroundColor: color
         ])
         return tf
     }

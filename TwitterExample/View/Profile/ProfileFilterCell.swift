@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 class ProfileFilterCell: UICollectionViewCell {
     // MARK: - Properties
     var option: ProfileFilterOptions! {
