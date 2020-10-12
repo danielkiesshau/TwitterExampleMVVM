@@ -168,6 +168,7 @@ extension ProfileController: ProfileHeaderDelegate {
     }
 
     func handleDismissal() {
+        navigationController?.navigationBar.isHidden = false
         navigationController?.popViewController(animated: true)
        
     }
