@@ -11,7 +11,7 @@ import Firebase
 struct TweetService {
     static let shared = TweetService()
     
-    func uploadTweet(caption: String, type: UploadTweetConfiguration, completion: @escaping(DatabaseCompletion)) {
+    func uploadTweet(caption: String, type: UploadTweetConfiguration, completion: @escaping(Error?, DatabaseReference, String) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         var values = [
@@ -27,13 +27,17 @@ struct TweetService {
             TWEET_REF.childByAutoId().updateChildValues(values) { (error, ref) in
                 // update user-tweets structure after tweet's been uploaded
                 guard let tweetID = ref.key else { return }
-                USER_TWEETS_REF.child(uid).updateChildValues([tweetID: 1], withCompletionBlock: completion)
+                USER_TWEETS_REF.child(uid).updateChildValues([tweetID: 1], withCompletionBlock: { (error, ref) in
+                    completion(error,ref, tweetID)
+                })
             }
         case .reply(let tweet):
             values["replyingTo"] = tweet.user.username
             TWEET_REPLIES_REF.child(tweet.tweetID).childByAutoId().updateChildValues(values) { (err, ref) in
                 guard let replyKey = ref.key else  { return }
-                USER_REPLIES_REF.child(uid).updateChildValues([tweet.tweetID: replyKey], withCompletionBlock: completion)
+                USER_REPLIES_REF.child(uid).updateChildValues([tweet.tweetID: replyKey], withCompletionBlock: { (error, ref) in
+                    completion(error,ref, replyKey)
+                })
             }
         }
     }

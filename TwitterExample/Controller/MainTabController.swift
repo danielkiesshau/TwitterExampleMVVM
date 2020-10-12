@@ -63,10 +63,10 @@ class MainTabController: UITabBarController {
         let feed = templateNavigationController(image: UIImage(named: "home_unselected"), rootViewController: feedController)
         let explore = templateNavigationController(image: UIImage(named: "search_unselected"), rootViewController: ExploreController())
         let notifications = templateNavigationController(image: UIImage(named: "like_unselected"), rootViewController: NotificationsController())
-        let conversations = templateNavigationController(image: UIImage(named: "ic_mail_outline_white_2x-1"), rootViewController: ConversationsController())
+   
         
         // set the Viewcontrollers for the tabbar
-        viewControllers = [feed, explore, notifications, conversations]
+        viewControllers = [feed, explore, notifications]
         
     }
     

@@ -81,7 +81,7 @@ class UploadTweetController: UIViewController {
     
     @objc func handleUploadTweet() {
         guard let text = captionTextView.text else { return }
-        TweetService.shared.uploadTweet(caption: text, type: config) { (error, ref) in
+        TweetService.shared.uploadTweet(caption: text, type: config) { (error, ref, tweetID) in
             if let error = error {
                 print("DEBUG: Tweet upload Error \(error.localizedDescription)")
                 return
@@ -91,7 +91,7 @@ class UploadTweetController: UIViewController {
                 NotificationService.shared.uploadNotification(toUser: tweet.user, type: .reply, tweetID: tweet.tweetID)
                 
             }
-            self.uploadMentionNotification(forCaption: text, tweetID: ref.key)
+            self.uploadMentionNotification(forCaption: text, tweetID: tweetID)
             
             
             

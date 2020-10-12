@@ -51,6 +51,10 @@ class NotificationsController: UITableViewController {
     func fetchNotifications() {
         refreshControl?.beginRefreshing()
         NotificationService.shared.fetchNotifications { (notifications) in
+            guard !notifications.isEmpty else {
+                self.refreshControl?.endRefreshing()
+                return
+            }
             self.notifications = notifications
             self.checkIFUserIsFollowed(notifications: notifications)
             self.refreshControl?.endRefreshing()
@@ -58,11 +62,18 @@ class NotificationsController: UITableViewController {
     }
     
     func checkIFUserIsFollowed(notifications: [Notification]) {
-        for (index, notification) in notifications.enumerated() {
+        
+        notifications.forEach { (notification) in
+            guard case .follow = notification.type else { return }
+            
             let user = notification.user
+            
             UserService.shared.checkIfUserIsFollowed(uid: user.uid) { (isFollowed) in
-                self.notifications[index].user.isFollowed = isFollowed
+                if let index = self.notifications.firstIndex(where: {$0.user.uid == notification.user.uid}) {
+                    self.notifications[index].user.isFollowed = isFollowed
+                }
             }
+            
         }
     }
     

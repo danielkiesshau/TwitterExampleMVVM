@@ -30,6 +30,12 @@ struct NotificationService {
     func fetchNotifications(completion: @escaping(([Notification]) -> Void)) {
         var notifications = [Notification]()
         guard let uid = Auth.auth().currentUser?.uid else { return }
+        NOTIFICATIONS_REF.child(uid).observeSingleEvent(of: .value) { (snapshot) in
+            if (!snapshot.exists()) {
+                completion(notifications)
+            }
+            return
+        }
         
         NOTIFICATIONS_REF.child(uid).observe(.childAdded) { (snapshot) in
             guard let dictionary = snapshot.value as? [String: AnyObject] else { return }
