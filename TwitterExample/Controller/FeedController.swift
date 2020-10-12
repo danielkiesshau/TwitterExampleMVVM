@@ -49,7 +49,9 @@ class FeedController: UICollectionViewController {
         
         collectionView.backgroundColor = .white
         collectionView.register(TweetCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-        
+        let refreshControl = UIRefreshControl()
+        collectionView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
     }
     
     func configureLeftBarButton() {
@@ -68,22 +70,31 @@ class FeedController: UICollectionViewController {
     // MARK: - API
     
     func fetchTweets() {
+        collectionView.refreshControl?.beginRefreshing()
         TweetService.shared.fetchTweets(completion: { tweets in
-            self.tweets = tweets
-            
-            self.checkIfUserLikedTweets(tweets: tweets)
-            
+            self.tweets = tweets.sorted(by: { $0.timestamp > $1.timestamp })
+            self.checkIfUserLikedTweets()
+            self.collectionView.refreshControl?.endRefreshing()
         })
     }
     
-    func checkIfUserLikedTweets(tweets: [Tweet]) {
-        for (index, tweet) in tweets.enumerated() {
+    func checkIfUserLikedTweets() {
+        self.tweets.forEach { (tweet) in
             TweetService.shared.checkIfUserLikedTweet(tweet, completion: {didLike in
                 guard didLike == true else { return }
+                if let index = self.tweets.firstIndex(where: { $0.tweetID == tweet.tweetID }) {
+                    self.tweets[index].didLike = true
+                }
                 
-                self.tweets[index].didLike = true
             })
         }
+    }
+    
+    // MARK: - Selectors
+    
+    @objc
+    func handleRefresh() {
+        fetchTweets()
     }
 }
 
