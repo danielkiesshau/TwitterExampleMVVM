@@ -8,6 +8,9 @@
 import UIKit
 
 struct TweetViewModel {
+    
+    // MARK: - Properties
+    
     let tweet: Tweet
     let user: User
     
@@ -71,10 +74,23 @@ struct TweetViewModel {
         return UIImage(named: imageName)!
     }
     
+    var shouldHideReplyLabel: Bool {
+        return !tweet.isReply
+    }
+    
+    var replyText: String? {
+        guard let replyingToUsername = tweet.replyingTo else { return nil }
+        return "→ replying to @\(replyingToUsername)"
+    }
+    
+    // MARK: - Lifecycle
+    
     init (tweet: Tweet) {
         self.tweet = tweet
         self.user = tweet.user
     }
+    
+    // MARK: - Helpers
     
     private func attributedText(withValue value: Int, text: String) -> NSAttributedString {
         let attributedTitle = NSMutableAttributedString(string: "\(value)", attributes: [
@@ -88,6 +104,9 @@ struct TweetViewModel {
         
         return attributedTitle
     }
+    
+    
+   
     
     func size(forWidth width: CGFloat) -> CGSize {
         let measurementLabel = UILabel()

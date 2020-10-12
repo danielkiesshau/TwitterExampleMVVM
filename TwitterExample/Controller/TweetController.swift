@@ -30,6 +30,7 @@ class TweetController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = false
         configureColectionView()
         fetchReplies()
     }
