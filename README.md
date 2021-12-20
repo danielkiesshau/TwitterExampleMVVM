@@ -1,7 +1,7 @@
 
 # Twitter clone Example with Swift
 
-[Udemy Cerficate](https://www.udemy.com/certificate/UC-9326bf85-8fb7-4c2d-86df-6dbe01c8d2ee/)
+[Udemy Cerficate](https://www.udemy.com/certificate/UC-849dad72-8bb3-4631-813f-7d03f66ad19f/)
 
 ## Gif of the app
 <img src="twitter-gif.gif" height="450"/>
